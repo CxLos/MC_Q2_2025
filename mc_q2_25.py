@@ -396,7 +396,7 @@ activity_fig = px.bar(
     bargroupgap=0,  # Reduce space between individual bars in groups
 ).update_traces(
     textposition='auto',  # Place count values outside bars
-        textfont=dict(size=30),  # Increase text size in each bar
+    textfont=dict(size=30),  # Increase text size in each bar
     hovertemplate=(
          '<br>'
         '<b>Count: </b>%{y}<br>'  # Count
@@ -699,7 +699,7 @@ product_bar=px.bar(
     hovertemplate='<b>Name:</b> %{label}<br><b>Count</b>: %{y}<extra></extra>'
 )
 
-# Person Pie Chart
+# Pie Chart
 product_pie=px.pie(
     df_product_type,
     names="Product Type",
