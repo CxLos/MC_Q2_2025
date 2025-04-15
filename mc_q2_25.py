@@ -96,6 +96,7 @@ def get_custom_quarter(date_obj):
 
 # Example usage:
 report_date = datetime(2025, 3, 1)
+report_year = datetime(2025, 3, 1).year
 current_quarter = get_custom_quarter(report_date)
 print(f"Reporting Quarter: {current_quarter}")
 
@@ -1746,11 +1747,12 @@ html.Div(
 print(f"Serving Flask app '{current_file}'! 🚀")
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=
+                   True)
                 #    False)
 # =================================== Updated Database ================================= #
 
-# updated_path = 'data/mc_q2_2025_cleaned.xlsx'
+# updated_path = f'data/MarCom_{current_quarter}_{report_year}.xlsx'
 # data_path = os.path.join(script_dir, updated_path)
 # df.to_excel(data_path, index=False)
 # print(f"DataFrame saved to {data_path}")
