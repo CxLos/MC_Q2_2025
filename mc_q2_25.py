@@ -114,20 +114,24 @@ print(f"Reporting Quarter: {current_quarter}")
 
 # ================================= Columns ================================= #
 
-# Column Names: 
-#  Index([
-#        'Timestamp',
-#        'Which MarCom activity category are you submitting an entry for?',
-#        'Person completing this form:', 
-#        'Activity Duration (hours):',
-#        'Purpose of the activity (please only list one):',
-#        'Please select the type of product(s):',
-#        'Please provide public information:', 
-#        'Please explain event-oriented:',
-#        'Date of Activity:', 
-#        'Brief activity description:', 
-#        'Activity Status'],
-#  dtype='object')
+columns =[
+    'Timestamp',
+    'Date of Activity', 
+    'Person submitting this form:',
+       'Activity Duration (Minutes)', 
+       'Total travel time (Minutes):',
+       'What type of MARCOM activity are you reporting?', 
+       'BMHC Activity:',
+       'Care Network Activity:', 
+       'Brief activity description:',
+       'Activity Status', 
+       'Community Outreach Activity:',
+       'Community Education Activity:',
+       'Any recent or planned changes to BMHC lead services or programs?',
+       'Entity Name:', 
+       'Email Address', 
+       'Month'
+]
 
 # =============================== Missing Values ============================ #
 
@@ -147,17 +151,18 @@ print(f"Reporting Quarter: {current_quarter}")
 
 df.rename(
     columns={
-        "Which MarCom activity category are you submitting an entry for?": "MarCom Activity",
-        "Purpose of the activity (please only list one):": "Purpose",
-        "Please select the type of product(s):": "Product Type",
-        "Activity Duration (hours):": "Activity duration",
-        "Total travel time (minutes):": "Travel Time",
+        "What type of MARCOM activity are you reporting?": "MarCom Activity",
+        "BMHC Activity:": "Purpose",
+        # "Purpose of the activity (please only list one):": "Purpose",
+        "Care Network Activity:": "Product Type",
+        "Activity Duration (Minutes)": "Activity duration",
+        "Total travel time (Minutes):": "Travel Time",
     }, 
 inplace=True)
 
 # Fill Missing Values
-df['Please provide public information:'] = df['Please provide public information:'].fillna('N/A')
-df['Please explain event-oriented:'] = df['Please explain event-oriented:'].fillna('N/A')
+# df['Please provide public information:'] = df['Please provide public information:'].fillna('N/A')
+# df['Please explain event-oriented:'] = df['Please explain event-oriented:'].fillna('N/A')
 
 # print(df.dtypes)
 
@@ -1264,9 +1269,73 @@ df_activity_status['Activity Status'] = (
     })
 )
 
+df_activity_status_counts = (
+    df.groupby(['Month', 'Activity Status'], sort=False)
+    .size()
+    .reset_index(name='Count')
+)
+
+df_activity_status_counts['Month'] = pd.Categorical(
+    df_activity_status_counts['Month'],
+    categories=month_order,
+    ordered=True
+)
+
 # print("Activity Status Unique after: \n", df['Activity Status'].unique().tolist())
 
-status_fig = px.pie(
+status_fig = px.bar(
+    df_activity_status_counts,
+    x='Month',
+    y='Count',
+    color='Activity Status',
+    barmode='group',
+    text='Count',
+    labels={
+        'Count': 'Number of Submissions',
+        'Month': 'Month',
+        'Activity Status': 'Activity Status'
+    }
+).update_layout(
+    title_x=0.5,
+    xaxis_title='Month',
+    yaxis_title='Count',
+    height=900,
+    font=dict(
+        family='Calibri',
+        size=17,
+        color='black'
+    ),
+    title=dict(
+        text= f'{current_quarter} Activity Status by Month',
+        x=0.5, 
+        font=dict(
+            size=22,
+            family='Calibri',
+            color='black',
+            )
+    ),
+    xaxis=dict(
+        tickmode='array',
+        tickvals=df_activity_status_counts['Month'].unique(),
+        tickangle=-35
+    ),
+    legend=dict(
+        title='',
+        orientation="v",
+        x=1.05,
+        xanchor="left",
+        y=1,
+        yanchor="top"
+    ),
+    hovermode='x unified'
+).update_traces(
+    textfont=dict(size=25),  # Increase text size in each bar
+    textposition='outside',
+    hovertemplate='<br><b>Count: </b>%{y}<br>',
+    customdata=df_activity_status_counts['Activity Status'].values.tolist()
+)
+
+status_pie = px.pie(
         df_activity_status,
         values='Count',
         names='Activity Status',
@@ -1726,7 +1795,6 @@ html.Div(
         html.Div(
             className='graph1',
             children=[
-                # 'Activity Status' pie chart
                 dcc.Graph(
                   figure = status_fig
                 )
@@ -1736,7 +1804,7 @@ html.Div(
             className='graph2',
             children=[                
                 dcc.Graph(
-                    style={'height': '800px', 'width': '800px'}  # Set height and width
+                    figure = status_pie
                 )
             ]
         )
